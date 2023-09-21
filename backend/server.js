@@ -32,6 +32,9 @@ const therapistSchema = new mongoose.Schema({
 
 const Therapist = mongoose.model('Therapist', therapistSchema);
 
+
+   
+
 // API endpoint to handle therapist registration
 app.post('/api/register', async (req, res) => {
   try {
@@ -49,3 +52,4 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
