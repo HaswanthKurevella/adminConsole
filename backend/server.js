@@ -19,8 +19,19 @@ mongoose.connect(dbUrl, connectionParams)
         console.error(`Error connecting to the database. \n${err}`);
     }
     )
-
+    
+    app.post('/register/:name/:age/:mail',async (req,res)=>{
+        const details=await db.collection('col1').insertOne(
+            {
+                name:req.params.name,
+                age:req.params.age,
+                mail:req.params.mail,
+            }
+        );
+        res.json(details);
+    });
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 }
 )
+
