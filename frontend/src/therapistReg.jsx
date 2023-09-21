@@ -1,42 +1,58 @@
 import React, { useState } from 'react';
-import "./styles/TherapistReg.css";
+import axios from 'axios';
 
-const TherapistForm = () => {
+const TherapiReg = () => {
   const [formData, setFormData] = useState({
     username: '',
-    mobileNumber: '',
     email: '',
+    qualification: '',
     password: '',
     confirmPassword: '',
-    qualification: ''
-    // Add other fields here as needed
+    mobileNumber: '',
   });
+
+  const [passwordMatch, setPasswordMatch] = useState(true); // State to track password matching
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Check if password and confirmPassword match here
 
+    // Check if password and confirm password match
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
+      setPasswordMatch(false);
       return;
     }
 
-    // Handle form submission logic here
-    console.log(formData);
+    try {
+      // Send the form data to your server, which will save it to MongoDB Atlas
+      await axios.post('http://localhost:8000/api/register', formData);
+
+      // Clear the form after successful registration
+      setFormData({
+        username: '',
+        email: '',
+        qualification: '',
+        password: '',
+        confirmPassword: '',
+        mobileNumber: '',
+      });
+
+      // Reset password matching state
+      setPasswordMatch(true);
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="therapist-form">
-      <div className="column">
-        <div>
+    <div className="registration-form">
+      <h2>Registration</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -47,18 +63,7 @@ const TherapistForm = () => {
             required
           />
         </div>
-        <div>
-          <label htmlFor="mobileNumber">Mobile Number:</label>
-          <input
-            type="text"
-            id="mobileNumber"
-            name="mobileNumber"
-            value={formData.mobileNumber}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -69,31 +74,7 @@ const TherapistForm = () => {
             required
           />
         </div>
-      </div>
-      <div className="column">
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="qualification">Qualification:</label>
           <input
             type="text"
@@ -104,10 +85,46 @@ const TherapistForm = () => {
             required
           />
         </div>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm Password:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        {!passwordMatch && (
+          <p className="error">Password and confirm password do not match.</p>
+        )}
+        <div className="form-group">
+          <label htmlFor="mobileNumber">Mobile Number:</label>
+          <input
+            type="text"
+            id="mobileNumber"
+            name="mobileNumber"
+            value={formData.mobileNumber}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
 };
 
-export default TherapistForm;
+export default TherapiReg;
