@@ -1,14 +1,26 @@
-import express from 'express';
-import cors from 'cors';
-import { db, connectToDB } from "./db.js";
-const app = express();
-app.use(express.json())
-app.use(cors());
-app.get('/', (req, res) => {
-    res.send("server running successfully")
-})
-connectToDB(() => {
-    app.listen(8000, () => {
-        console.log("server Running At Port 8000")
-    })
-})
+const mongoose = require('mongoose');
+const express = require('express');
+
+const app = express();  
+const port = 5000;
+
+const dbUrl = "mongodb+srv://munagalavamsi37:1234@cluster0.x3hwgmg.mongodb.net/?retryWrites=true&w=majority"
+const connectionParams = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}
+
+mongoose.connect(dbUrl, connectionParams)
+    .then(() => {
+        console.log('Connected to database ');
+    }
+    )
+    .catch((err) => {
+        console.error(`Error connecting to the database. \n${err}`);
+    }
+    )
+
+app.listen(port, () => {
+    console.log(`Server is running on port: ${port}`);
+}
+)
