@@ -1,61 +1,73 @@
-const mongoose = require("mongoose");
-const express = require("express");
-const cors = require("cors");
-const TherapistModel = require("./therapist");
-const app = express();
-const bodyParser = require("body-parser");
-const Feedback = require('./Feedback');
-app.use(cors());
-app.use(express.json());
-const port = 8000;
-const dbUrl =
-  "mongodb+srv://munagalavamsi37:1234@cluster0.x3hwgmg.mongodb.net/adminConsole?retryWrites=true&w=majority";
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-mongoose
-  .connect(dbUrl)
+const app = express();
+
+// Middleware
+app.use(bodyParser.json());
+app.use(cors());
+
+const dbURI = 'mongodb+srv://munagalavamsi37:1234@cluster0.x3hwgmg.mongodb.net/adminConsole?retryWrites=true&w=majority';
+
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log("Connected to database ");
+    console.log('Connected to MongoDB Atlas');
   })
-  .catch((err) => {
-    console.error(`Error connecting to the database. \n${err}`);
+  .catch((error) => {
+    console.error('Error connecting to MongoDB Atlas:', error);
   });
 
-app.post("/register", async (req, res) => {
-  const { name, password } = req.body;
-  try {
-    const therapist = await TherapistModel.create({ name, password });
-    res.status(200).json(therapist);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+require("./imagedetails");
+const Images = mongoose.model("ImageDetails");
+
+const therapistSchema = new mongoose.Schema({
+  username: String,
+  mobileNumber: String,
+  email: String,
+  password: String,
+  qualification: String,
+  photo: String
 });
 
-app.get('/api/FbRecieved', async (req, res) => {
+const Therapist = mongoose.model('Therapist', therapistSchema);
+
+app.use(cors());
+app.use(express.json());
+
+app.post('/api/register', async (req, res) => {
   try {
-    const feedbacks = await Feedback.find({}, { _id: 0, title: 1, description: 1 });
-    res.json({ success: true, data: feedbacks });
+    const { username, mobileNumber, email, password, qualification, photo } = req.body;
+
+    const newTherapist = new Therapist({
+      username,
+      mobileNumber,
+      email,
+      password,
+      qualification,
+      photo,
+    });
+    await newTherapist.save();
+
+    res.status(201).json({ message: 'Therapist registered successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error registering therapist:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-
-
-
-app.get("/", async (req, res) => {
+app.get("/get-all-data", async (req, res) => {
   try {
-    const therapists = await TherapistModel.find();
-    res.status(200).json(therapists);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const data = await Therapist.find({});
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send({ status: "error", data: error.message });
   }
 });
 
-// app.post('/register',async (req,res)=>{
-//     TherapistModel.create(req.body)
-//     .then(therapists => res.json(therapists))
-//     .catch(err => res.json('Error: ' + err));
-// });
+const port = process.env.PORT || 8000;
 app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
