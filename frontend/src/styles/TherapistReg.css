@@ -35,3 +35,18 @@ button {
   border: none;
   cursor: pointer;
 }
+
+.feedback-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.feedback-table th, .feedback-table td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+}
+
+.feedback-table th {
+  background-color: #007bff;;
+}

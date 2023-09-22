@@ -14,6 +14,10 @@ function NavBar() {
 					<li>
 						<Link to='therapistReg'>Therapist Registration</Link>
 					</li>
+					<li>
+						<Link to='fbrecieved'>Recieved Feedbacks</Link>
+					</li>
+					
 				</ul>
 			</nav>
 		</div>
