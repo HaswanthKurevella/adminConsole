@@ -9,10 +9,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// MongoDB Atlas connection string (replace with your connection string)
 const dbURI = 'mongodb+srv://munagalavamsi37:1234@cluster0.x3hwgmg.mongodb.net/adminConsole?retryWrites=true&w=majority';
 
-// Connect to MongoDB Atlas
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB Atlas');
@@ -21,25 +19,37 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
     console.error('Error connecting to MongoDB Atlas:', error);
   });
 
-// Define a Mongoose schema and model (e.g., Therapist)
+require("./imagedetails");
+const Images = mongoose.model("ImageDetails");
+
 const therapistSchema = new mongoose.Schema({
   username: String,
   mobileNumber: String,
   email: String,
   password: String,
   qualification: String,
+  photo: String
 });
 
 const Therapist = mongoose.model('Therapist', therapistSchema);
 
+app.use(cors());
+app.use(express.json());
 
-   
-
-// API endpoint to handle therapist registration
 app.post('/api/register', async (req, res) => {
   try {
-    const newTherapist = new Therapist(req.body);
+    const { username, mobileNumber, email, password, qualification, photo } = req.body;
+
+    const newTherapist = new Therapist({
+      username,
+      mobileNumber,
+      email,
+      password,
+      qualification,
+      photo,
+    });
     await newTherapist.save();
+
     res.status(201).json({ message: 'Therapist registered successfully' });
   } catch (error) {
     console.error('Error registering therapist:', error);
@@ -47,9 +57,17 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Start the Express server
+app.get("/get-all-data", async (req, res) => {
+  try {
+    const data = await Therapist.find({});
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send({ status: "error", data: error.message });
+  }
+});
+
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
