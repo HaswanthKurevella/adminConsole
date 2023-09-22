@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "./styles/TherapistReg.css";
 
 const TherapistForm = () => {
@@ -8,31 +8,100 @@ const TherapistForm = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    qualification: ''
-    // Add other fields here as needed
+    qualification: '',
+    photo: null
   });
+  const [image, setImage] = useState("");
+
+  const [allImage,setAllImage]=useState([]); // creating state
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+    const { name, value, type } = e.target;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Check if password and confirmPassword match here
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
+    if (type === 'file') {
+      const file = e.target.files[0];
+      setFormData({
+        ...formData,
+        [name]: file
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
     }
-
-    // Handle form submission logic here
-    console.log(formData);
   };
 
+  const convertToBase64 = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+  
+      reader.onload = () => {
+        const base64String = reader.result.split(',')[1];
+        console.log(base64String);
+        setImage(base64String);
+      };
+  
+      reader.onerror = (error) => {
+        console.error('Error converting image to base64:', error);
+      };
+  
+      reader.readAsDataURL(file);
+    }
+  };
+
+  useEffect(()=>{
+    getImage()
+  },[])
+  function uploadImage() {
+    fetch("http://localhost:5000/upload-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*", // Add the allowed origin here
+      },
+      body: JSON.stringify({
+        base64: image
+      })
+    })
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+    .catch((error) => console.error('Error uploading image:', error));
+  }
+
+  // to get image 
+function getImage() {
+  fetch("http://localhost:5000/get-image", { 
+    method: "GET",
+  })
+  .then((res) => res.json())
+  .then((data) => { 
+    console.log(data);
+    setAllImage(data.data);
+  })
+  .catch((error) => console.error('Error fetching image:', error));
+}
+
+
+  const handleSubmit = async (e) => {a
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/api/therapists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+  
+      const data = await response.json();
+      console.log('Therapist registered:', data);
+    } catch (error) {
+      console.error('Error registering therapist:', error);
+    }
+  };
   return (
     <form onSubmit={handleSubmit} className="therapist-form">
       <div className="column">
@@ -103,6 +172,27 @@ const TherapistForm = () => {
             onChange={handleChange}
             required
           />
+        </div>
+      </div>
+      <div className="column">
+        <div>
+          <label htmlFor="photo">Upload Photo:</label>
+          <br />
+          <input
+            type="file"
+            id="photo"
+            name="photo"
+            accept="image/*"
+            onChange={convertToBase64}
+          />
+          {image && <img width={100} height={100} src={`data:image/png;base64,${image}`} alt="Uploaded" />}
+          <button type="button" onClick={uploadImage}>Upload</button>
+          {allImage.map(data=>{
+            return(
+              <img width={100} height={100} src={`data:image/png;base64,${data.image}`}/>
+            )
+          })}
+        
         </div>
       </div>
       <button type="submit">Submit</button>
