@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App.jsx'
 import './index.css'
 import ErrorPage from './error-page.jsx';
+import FbReceived from './feedbackRecieved.jsx';
 // Routes
 import TherapistReg from './therapistReg.jsx';
 const router = createBrowserRouter([
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
 			{
 				path: 'therapistReg',
 				element: <TherapistReg/>,
+			},
+			{
+				path: 'fbrecieved',
+				element: <FbReceived/>,
 			},
 			
 		],
