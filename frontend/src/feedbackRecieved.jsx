@@ -4,22 +4,17 @@ import "./styles/TherapistReg.css";
 
 const FbReceived = () => {
   const [feedbackData, setFeedbackData] = useState([]);
-//   const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch feedback data from the server
-    axios.get('http://localhost:8000/api/FbRecieved') // Removed the full URL, use relative path
+    axios.get('http://localhost:8000/api/get-feedbacks')
       .then((response) => {
         setFeedbackData(response.data.data);
       })
       .catch((error) => {
-        setError(error); // Store the error
+        console.error('Error fetching feedback:', error);
       });
   }, []);
-
-//   if (error) {
-//     return <div>Error fetching feedback: {error.message}</div>;
-//   }
 
   return (
     <div>

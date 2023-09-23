@@ -2,9 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const Feedback = require('./models/Feedback');
 const app = express();
-
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
@@ -54,6 +53,15 @@ app.post('/api/register', async (req, res) => {
   } catch (error) {
     console.error('Error registering therapist:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/get-feedbacks', async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find({}, { _id: 0, title: 1, description: 1 });
+    res.json({ success: true, data: feedbacks });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
